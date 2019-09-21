@@ -1,4 +1,4 @@
-rule("GLO-A = Number of heroes per team")
+rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per team |||")
 {
 	event
 	{
@@ -7,63 +7,52 @@ rule("GLO-A = Number of heroes per team")
 
 	actions
 	{
-		Set Global Variable(A, 10);
+		Set Global Variable(N, 10);
+		Set Global Variable(O, 2);
 	}
 }
 
-disabled rule("")
+rule("DEBUG: On Voice Line Down, advance phase")
 {
 	event
 	{
-		Ongoing - Global;
-	}
-}
-
-rule("Upon assembling heroes, set Draft Mode (D), State Counter (S), and skip to setup")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Assembling Heroes == True;
-		Global Variable(D) != True;
-		Global Variable(S) <= 0;
-	}
-
-	actions
-	{
-		Set Global Variable(D, True);
-		Set Global Variable(S, 0);
-		Set Match Time(0);
-		Wait(0.010, Ignore Condition);
-		Set Global Variable(T, Match Time);
-		Pause Match Time;
-	}
-}
-
-rule("While Draft Mode is Active, ensure that the game does not exit setup")
-{
-	event
-	{
-		Ongoing - Global;
+		Ongoing - Each Player;
+		All;
+		All;
 	}
 
 	conditions
 	{
 		Global Variable(D) == True;
-		Is In Setup == True;
-		Global Variable(T) > 0;
+		Is Communicating(Event Player, Voice Line Down) == True;
 	}
 
 	actions
 	{
-		Set Match Time(Global Variable(T));
-		Pause Match Time;
-		Wait(0.500, Ignore Condition);
-		Loop If Condition Is True;
+		Modify Global Variable(S, Add, 1);
+	}
+}
+
+disabled rule("General Rules")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Variable Setup: Create Common Hero Pool (H), Team 1 Hero Pool (I), and Team 2 Hero Pool (J)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Set Global Variable(H, All Heroes);
+		Set Global Variable(I, Empty Array);
+		Set Global Variable(J, Empty Array);
 	}
 }
 
@@ -94,6 +83,87 @@ rule("While Draft Mode is Active, ensure that players cannot move")
 	}
 }
 
+rule("While Draft Mode is active, prevent emoting to move")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Is Communicating Any Emote(Event Player) == True;
+	}
+
+	actions
+	{
+		Set Status(Event Player, Null, Stunned, 0.016);
+	}
+}
+
+rule("While Draft Mode is Active, ensure that the game does not exit setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(T) > 0;
+	}
+
+	actions
+	{
+		Set Match Time(Global Variable(T));
+		Pause Match Time;
+		Wait(5, Ignore Condition);
+		Loop If Condition Is True;
+	}
+}
+
+disabled rule("Phase 1: Captain Selection ||| Y=Team 1 Captain ||| Z=Team 2 Captain")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Set Draft Mode (D), State Counter (S), Create Text (G), and skip to setup")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+		Global Variable(D) != True;
+		Global Variable(S) <= 0;
+	}
+
+	actions
+	{
+		Set Global Variable(D, True);
+		Set Global Variable(S, 0);
+		Set Match Time(0);
+		Wait(0.010, Ignore Condition);
+		Set Global Variable(T, Match Time);
+		Pause Match Time;
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("Current Phase", Null, Null, Null), String("{0} {1}", String(
+			"Selecting", Null, Null, Null), String("Leaders", Null, Null, Null), Null), Null), Null, Null, Top, 0, White, White, White,
+			Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+	}
+}
+
 rule("Create Text for Team 1 (A) and Team 2 (B) that tells them to Interact to become Captain")
 {
 	event
@@ -110,15 +180,17 @@ rule("Create Text for Team 1 (A) and Team 2 (B) that tells them to Interact to b
 	actions
 	{
 		Create HUD Text(All Players(Team 1), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null),
-			Null), String("Interact", Null, Null, Null), Null, Top, 0, White, White, White, Visible To and String);
+			Null), String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact", Null, Null, Null), Null), Null, Top, 1,
+			White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(A, Last Text ID);
 		Create HUD Text(All Players(Team 2), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null),
-			Null), String("Interact", Null, Null, Null), Null, Top, 0, White, White, White, Visible To and String);
+			Null), String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact", Null, Null, Null), Null), Null, Top, 1,
+			White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(B, Last Text ID);
 	}
 }
 
-rule("Listen for players hitting interact during Draft Mode, and make captain if there is none, deleting prompt to become captain")
+rule("Listen for players during Draft Mode, and make captain if there is none, deleting prompt to become captain")
 {
 	event
 	{
@@ -130,6 +202,7 @@ rule("Listen for players hitting interact during Draft Mode, and make captain if
 	conditions
 	{
 		Global Variable(D) == True;
+		Is Button Held(Event Player, Crouch) == True;
 		Is Button Held(Event Player, Interact) == True;
 		Is True For Any(All Players(Team Of(Event Player)), Compare(Player Variable(Current Array Element, C), ==, True)) == False;
 	}
@@ -138,25 +211,177 @@ rule("Listen for players hitting interact during Draft Mode, and make captain if
 	{
 		Set Player Variable(Event Player, C, True);
 		Big Message(All Players(Team Of(Event Player)), String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null));
-		Skip If(Compare(Team Of(Event Player), ==, Team 1), 2);
+		Skip If(Compare(Team Of(Event Player), ==, Team 1), 5);
 		Destroy HUD Text(Global Variable(B));
-		Skip(1);
+		Create HUD Text(All Players(Team 2), Null, String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null), Null, Top,
+			1, White, White, White, Visible To and String, Visible Never);
+		Set Global Variable(B, Last Text ID);
+		Set Global Variable(Z, Event Player);
+		Skip(4);
 		Destroy HUD Text(Global Variable(A));
+		Create HUD Text(All Players(Team 1), Null, String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null), Null, Top,
+			1, White, White, White, Visible To and String, Visible Never);
+		Set Global Variable(A, Last Text ID);
+		Set Global Variable(Y, Event Player);
 	}
 }
 
-disabled rule("Scratch")
+rule("When both teams have selected a captain (PVAR_C = TRUE), move on to Phase 2: Bans")
 {
 	event
 	{
-		Ongoing - Each Player;
-		All;
-		All;
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is True For Any(All Players(Team 1), Compare(Player Variable(Current Array Element, C), ==, True)) == True;
+		Is True For Any(All Players(Team 2), Compare(Player Variable(Current Array Element, C), ==, True)) == True;
 	}
 
 	actions
 	{
-		Set Status(All Players(All Teams), Null, Rooted, 9999);
-		Clear Status(Event Player, Rooted);
+		Set Global Variable(S, 1);
+	}
+}
+
+disabled rule("Phase 2: Bans")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Set Team 1 to active team (T), count Team 1 heroes banned (I) and Team 2 (J), and start timer (U)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 1;
+	}
+
+	actions
+	{
+		Set Global Variable(R, Team 1);
+		Destroy HUD Text(Global Variable(G));
+		Set Global Variable(V, 0);
+		Set Global Variable(W, 0);
+		Set Global Variable(U, 30);
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Default Visibility);
+		Set Global Variable(G, Last Text ID);
+	}
+}
+
+rule("Team 1 Ban Selection")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 1;
+		All;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 1;
+		Global Variable(R) == Team 1;
+		Player Variable(Event Player, C) == True;
+		Is Button Held(Event Player, Crouch) == True;
+		Is Button Held(Event Player, Interact) == True;
+	}
+
+	actions
+	{
+		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Set Player Allowed Heroes(All Players(All Teams), Global Variable(H));
+		Set Global Variable(R, Team 2);
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Set Global Variable(U, 30);
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Modify Global Variable(V, Add, 1);
+	}
+}
+
+rule("Team 2 Ban Selection")
+{
+	event
+	{
+		Ongoing - Each Player;
+		Team 2;
+		All;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 1;
+		Global Variable(R) == Team 1;
+		Player Variable(Event Player, C) == True;
+		Is Button Held(Event Player, Crouch) == True;
+		Is Button Held(Event Player, Interact) == True;
+	}
+
+	actions
+	{
+		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Set Player Allowed Heroes(All Players(All Teams), Global Variable(H));
+		Set Global Variable(R, Team 2);
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Set Global Variable(U, 30);
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Modify Global Variable(W, Add, 1);
+	}
+}
+
+rule("If time (U) runs out, hand ban selection to other team")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 1;
+		Or(Compare(Global Variable(R), ==, Team 1), Compare(Global Variable(R), ==, Team 2)) == True;
+		Global Variable(U) == 0;
+	}
+
+	actions
+	{
+		Set Global Variable(R, Opposite Team Of(Global Variable(R)));
+		Set Global Variable(U, 30);
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Destroy HUD Text(Global Variable(G));
+		Skip If(Compare(Global Variable(R), ==, Team 2), 3);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Visible Always);
+		Modify Global Variable(W, Add, 1);
+		Skip(2);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Modify Global Variable(V, Add, 1);
+		Set Global Variable(G, Last Text ID);
 	}
 }

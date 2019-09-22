@@ -13,7 +13,7 @@ rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per
 	}
 }
 
-disabled rule("DEBUG: On Voice Line Down, advance phase")
+rule("DEBUG: On Voice Line Down, advance phase")
 {
 	event
 	{
@@ -34,7 +34,7 @@ disabled rule("DEBUG: On Voice Line Down, advance phase")
 	}
 }
 
-disabled rule("DEBUG: On Voice Line Up, set U to 0")
+rule("DEBUG: On Voice Line Up, set U to 0")
 {
 	event
 	{
@@ -885,7 +885,7 @@ rule("If active team reaches end of streak, switch to other team")
 	}
 }
 
-rule("Once both teams have drafted (N) heroes, end Draft Mode")
+rule("Once both teams have drafted (N) heroes, start pseudo-assemble heroes phase")
 {
 	event
 	{
@@ -904,29 +904,23 @@ rule("Once both teams have drafted (N) heroes, end Draft Mode")
 		Modify Global Variable(S, Add, 1);
 		Big Message(All Players(All Teams), String("{0} {1}", String("{0} / {1}", String("Pick", Null, Null, Null), String("Ban", Null,
 			Null, Null), Null), String("Finished", Null, Null, Null), Null));
+		Set Player Allowed Heroes(All Players(Team 1), Global Variable(I));
+		Set Player Allowed Heroes(All Players(Team 2), Global Variable(J));
 		Destroy HUD Text(Global Variable(A));
 		Destroy HUD Text(Global Variable(B));
 		Destroy HUD Text(Value In Array(Global Variable(F), 0));
 		Destroy HUD Text(Value In Array(Global Variable(F), 1));
-		Destroy HUD Text(Global Variable(G));
-		Set Ability 1 Enabled(All Players(All Teams), True);
-		Set Ability 2 Enabled(All Players(All Teams), True);
-		Set Primary Fire Enabled(All Players(All Teams), True);
-		Set Secondary Fire Enabled(All Players(All Teams), True);
-		Set Ultimate Ability Enabled(All Players(All Teams), True);
-		Clear Status(All Players(All Teams), Rooted);
-		Set Player Allowed Heroes(All Players(Team 1), Global Variable(I));
-		Set Player Allowed Heroes(All Players(Team 2), Global Variable(J));
-		Set Global Variable(D, False);
-		Set Global Variable(U, Global Variable(T));
+		Set Global Variable(U, 40);
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
-		Pause Match Time;
-		Set Match Time(Global Variable(T));
-		Unpause Match Time;
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", String("Building", Null, Null, Null), String("Teams",
+			Null, Null, Null), Null), String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), Null), Null, Null, Top, 0,
+			White, White, White, Visible To and String, Default Visibility);
+		Set Global Variable(G, Last Text ID);
 	}
 }
 
-rule("Destroy Hud Text at end of setup")
+rule("At end of pseudo-assemble, resume game")
 {
 	event
 	{
@@ -941,6 +935,17 @@ rule("Destroy Hud Text at end of setup")
 
 	actions
 	{
+		Set Global Variable(D, False);
+		Destroy HUD Text(Global Variable(G));
+		Set Ability 1 Enabled(All Players(All Teams), True);
+		Set Ability 2 Enabled(All Players(All Teams), True);
+		Set Primary Fire Enabled(All Players(All Teams), True);
+		Set Secondary Fire Enabled(All Players(All Teams), True);
+		Set Ultimate Ability Enabled(All Players(All Teams), True);
+		Clear Status(All Players(All Teams), Rooted);
+		Pause Match Time;
+		Set Match Time(Global Variable(T));
+		Unpause Match Time;
 		Destroy All HUD Text;
 		Set Global Variable(S, -100.000);
 	}

@@ -1,4 +1,4 @@
-rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per team |||")
+rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per team ||| P = Time Per Phase")
 {
 	event
 	{
@@ -8,7 +8,8 @@ rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per
 	actions
 	{
 		Set Global Variable(N, 10);
-		Set Global Variable(O, 2);
+		Set Global Variable(O, 3);
+		Set Global Variable(P, 20);
 	}
 }
 
@@ -33,7 +34,7 @@ rule("DEBUG: On Voice Line Down, advance phase")
 	}
 }
 
-disabled rule("General Rules")
+disabled rule("Phaseless Rules")
 {
 	event
 	{
@@ -41,7 +42,7 @@ disabled rule("General Rules")
 	}
 }
 
-rule("Variable Setup: Create Common Hero Pool (H), Team 1 Hero Pool (I), and Team 2 Hero Pool (J)")
+rule("Setup: Create Common Hero Pool (H), Team 1 Hero Pool (I), Team 2 Hero Pool (J)")
 {
 	event
 	{
@@ -53,6 +54,96 @@ rule("Variable Setup: Create Common Hero Pool (H), Team 1 Hero Pool (I), and Tea
 		Set Global Variable(H, All Heroes);
 		Set Global Variable(I, Empty Array);
 		Set Global Variable(J, Empty Array);
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 1, String("Leader", Null, Null, Null), Null), Null,
+			Null), Null, Null, Left, -1.000, Team 2, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 2, String("Leader", Null, Null, Null), Null), Null,
+			Null), Null, Null, Right, -1.000, Team 1, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Global Variable(Y), !=, 0)), Global Variable(Y), Null, Null, Left,
+			-0.900, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Global Variable(Z), !=, 0)), Global Variable(Z), Null, Null, Right,
+			-0.900, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("----------", Null, Null, Null), Null, Null, Left, -0.500, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("----------", Null, Null, Null), Null, Null, Right, -0.500, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, String("*", Null, Null, Null), Top, 1, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Null, String("*", Null, Null, Null), Top, 1.100, White, White, White,
+			Visible To and String, Default Visibility);
+	}
+}
+
+rule("Setup: Create Banned Heroes Display")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 1, String("Banned", Null, Null, Null), Null), Null,
+			Null), Null, Null, Left, 0, Team 2, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 2, String("Banned", Null, Null, Null), Null), Null,
+			Null), Null, Null, Right, 0, Team 1, White, White, Visible To and String, Default Visibility);
+		Set Global Variable(K, Empty Array);
+		Set Global Variable(L, Empty Array);
+		Create HUD Text(All Players(All Teams), String("{0} - {1}", Add(Modulo(Global Variable(X), Count Of(Global Variable(K))), 1),
+			String("{0} {1}", Hero Icon String(Value In Array(Global Variable(K), Modulo(Global Variable(X), Count Of(Global Variable(
+			K))))), Value In Array(Global Variable(K), Modulo(Global Variable(X), Count Of(Global Variable(K)))), Null), Null), Null, Null,
+			Left, 1, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("{0} - {1}", Add(Modulo(Global Variable(X), Count Of(Global Variable(L))), 1),
+			String("{0} {1}", Hero Icon String(Value In Array(Global Variable(L), Modulo(Global Variable(X), Count Of(Global Variable(
+			L))))), Value In Array(Global Variable(L), Modulo(Global Variable(X), Count Of(Global Variable(L)))), Null), Null), Null, Null,
+			Right, 1, White, White, White, Visible To and String, Default Visibility);
+	}
+}
+
+rule("Setup: Create Hero Pool Display")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 1, String("Picked", Null, Null, Null), Null), Null,
+			Null), Null, Null, Left, 2, Team 2, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("{0}:", String("{0} {1}", Team 2, String("Picked", Null, Null, Null), Null), Null,
+			Null), Null, Null, Right, 2, Team 1, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", Add(Modulo(Add(Multiply(3, Global Variable(X)), 0), Count Of(
+			Global Variable(I))), 1), Value In Array(Global Variable(I), 0), Null), Null, Null, Left, 3, White, White, White,
+			Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 2)), String("{0}: {1}", Add(
+			Modulo(Add(Multiply(3, Global Variable(X)), 1), Count Of(Global Variable(I))), 1), Value In Array(Global Variable(I), 0),
+			Null), Null, Null, Left, 3, White, White, White, Visible To and String, Default Visibility);
+		Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 3)), String("{0}: {1}", Add(
+			Modulo(Add(Multiply(3, Global Variable(X)), 2), Count Of(Global Variable(I))), 1), Value In Array(Global Variable(I), 0),
+			Null), Null, Null, Left, 3, White, White, White, Visible To and String, Default Visibility);
+	}
+}
+
+rule("Move Dynamic Index (X) every 1.3 seconds")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+	}
+
+	actions
+	{
+		Modify Global Variable(X, Add, 1);
+		Skip If(Compare(Global Variable(X), <, Count Of(All Heroes)), 1);
+		Set Global Variable(X, 0);
+		Wait(1.300, Ignore Condition);
+		Loop If Condition Is True;
+		Set Global Variable(X, 0);
 	}
 }
 
@@ -115,13 +206,14 @@ rule("While Draft Mode is Active, ensure that the game does not exit setup")
 	{
 		Global Variable(D) == True;
 		Global Variable(T) > 0;
+		Is In Setup == True;
 	}
 
 	actions
 	{
 		Set Match Time(Global Variable(T));
 		Pause Match Time;
-		Wait(5, Ignore Condition);
+		Wait(0.950, Ignore Condition);
 		Loop If Condition Is True;
 	}
 }
@@ -179,13 +271,13 @@ rule("Create Text for Team 1 (A) and Team 2 (B) that tells them to Interact to b
 
 	actions
 	{
-		Create HUD Text(All Players(Team 1), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null),
-			Null), String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact", Null, Null, Null), Null), Null, Top, 1,
-			White, White, White, Visible To and String, Visible Never);
+		Create HUD Text(All Players(Team 1), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null), Null),
+			Null), Null, Null, Top, 2, White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(A, Last Text ID);
-		Create HUD Text(All Players(Team 2), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null),
-			Null), String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact", Null, Null, Null), Null), Null, Top, 1,
-			White, White, White, Visible To and String, Visible Never);
+		Create HUD Text(All Players(Team 2), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Secure", Null, Null, Null), String("Leader", Null, Null, Null), Null),
+			Null), Null, Null, Top, 2, White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(B, Last Text ID);
 	}
 }
@@ -213,14 +305,14 @@ rule("Listen for players during Draft Mode, and make captain if there is none, d
 		Big Message(All Players(Team Of(Event Player)), String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null));
 		Skip If(Compare(Team Of(Event Player), ==, Team 1), 5);
 		Destroy HUD Text(Global Variable(B));
-		Create HUD Text(All Players(Team 2), Null, String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null), Null, Top,
-			1, White, White, White, Visible To and String, Visible Never);
+		Create HUD Text(All Players(Team 2), String("{0}: {1}", String("{0} {1}", String("Team", Null, Null, Null), String("Leader", Null,
+			Null, Null), Null), Event Player, Null), Null, Null, Top, 2, White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(B, Last Text ID);
 		Set Global Variable(Z, Event Player);
 		Skip(4);
 		Destroy HUD Text(Global Variable(A));
-		Create HUD Text(All Players(Team 1), Null, String("{0}: {1}", String("Leader", Null, Null, Null), Event Player, Null), Null, Top,
-			1, White, White, White, Visible To and String, Visible Never);
+		Create HUD Text(All Players(Team 1), String("{0}: {1}", String("{0} {1}", String("Team", Null, Null, Null), String("Leader", Null,
+			Null, Null), Null), Event Player, Null), Null, Null, Top, 2, White, White, White, Visible To and String, Visible Never);
 		Set Global Variable(A, Last Text ID);
 		Set Global Variable(Y, Event Player);
 	}
@@ -253,7 +345,7 @@ disabled rule("Phase 2: Bans")
 	}
 }
 
-rule("Set Team 1 to active team (T), count Team 1 heroes banned (I) and Team 2 (J), and start timer (U)")
+rule("Set Team 1 to active team (R) and start timer (U)")
 {
 	event
 	{
@@ -270,14 +362,16 @@ rule("Set Team 1 to active team (T), count Team 1 heroes banned (I) and Team 2 (
 	{
 		Set Global Variable(R, Team 1);
 		Destroy HUD Text(Global Variable(G));
-		Set Global Variable(V, 0);
-		Set Global Variable(W, 0);
-		Set Global Variable(U, 30);
+		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
 			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
-			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Default Visibility);
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
 		Set Global Variable(G, Last Text ID);
+		Create HUD Text(Global Variable(Y), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Ban", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Y))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
 	}
 }
 
@@ -302,17 +396,26 @@ rule("Team 1 Ban Selection")
 
 	actions
 	{
+		Modify Global Variable(K, Append To Array, Hero Of(Event Player));
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Banned", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(K))), Null), Null));
 		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
-		Set Player Allowed Heroes(All Players(All Teams), Global Variable(H));
-		Set Global Variable(R, Team 2);
+		Set Player Allowed Heroes(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==, True)),
+			Global Variable(H));
 		Destroy HUD Text(Global Variable(G));
 		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
 			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
-			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Visible Always);
 		Set Global Variable(G, Last Text ID);
-		Set Global Variable(U, 30);
+		Destroy HUD Text(Player Variable(Event Player, T));
+		Create HUD Text(Global Variable(Z), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Ban", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Z))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Z), T, Last Text ID);
+		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Modify Global Variable(V, Add, 1);
+		Set Global Variable(R, Team 2);
 	}
 }
 
@@ -329,7 +432,7 @@ rule("Team 2 Ban Selection")
 	{
 		Global Variable(D) == True;
 		Global Variable(S) == 1;
-		Global Variable(R) == Team 1;
+		Global Variable(R) == Team 2;
 		Player Variable(Event Player, C) == True;
 		Is Button Held(Event Player, Crouch) == True;
 		Is Button Held(Event Player, Interact) == True;
@@ -337,15 +440,24 @@ rule("Team 2 Ban Selection")
 
 	actions
 	{
+		Modify Global Variable(L, Append To Array, Hero Of(Event Player));
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Banned", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(L))), Null), Null));
 		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
-		Set Player Allowed Heroes(All Players(All Teams), Global Variable(H));
-		Set Global Variable(R, Team 2);
+		Set Player Allowed Heroes(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==, True)),
+			Global Variable(H));
+		Set Global Variable(R, Team 1);
 		Destroy HUD Text(Global Variable(G));
 		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
 			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
 			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
 		Set Global Variable(G, Last Text ID);
-		Set Global Variable(U, 30);
+		Destroy HUD Text(Player Variable(Event Player, T));
+		Create HUD Text(Global Variable(Y), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Ban", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Y))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
+		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Modify Global Variable(W, Add, 1);
 	}
@@ -369,19 +481,172 @@ rule("If time (U) runs out, hand ban selection to other team")
 	actions
 	{
 		Set Global Variable(R, Opposite Team Of(Global Variable(R)));
-		Set Global Variable(U, 30);
+		Big Message(All Players(All Teams), String("{0}: {1}", Opposite Team Of(Global Variable(R)), String("{0} {1}", String("No", Null,
+			Null, Null), String("Ban", Null, Null, Null), Null), Null));
+		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Destroy HUD Text(Global Variable(G));
-		Skip If(Compare(Global Variable(R), ==, Team 2), 3);
-		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
-			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
-			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Visible Always);
+		Skip If(Compare(Global Variable(R), ==, Team 2), 7);
 		Modify Global Variable(W, Add, 1);
-		Skip(2);
 		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
 			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
 			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Destroy HUD Text(Player Variable(Global Variable(Z), T));
+		Create HUD Text(Global Variable(Y), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Ban", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Y))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
+		Skip(6);
 		Modify Global Variable(V, Add, 1);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Global Variable(R), String("Banning", Null, Null,
+			Null), Null), String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining",
+			Null, Null, Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Destroy HUD Text(Player Variable(Global Variable(Y), T));
+		Create HUD Text(Global Variable(Z), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Ban", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Z))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Z), T, Last Text ID);
+	}
+}
+
+rule("Once both teams have banned (O) heroes, move on to drafting")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 1;
+		Global Variable(V) == Global Variable(O);
+		Global Variable(W) == Global Variable(O);
+	}
+
+	actions
+	{
+		Set Global Variable(S, 2);
+	}
+}
+
+disabled rule("Phase 3: Drafting")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+}
+
+rule("Set Team 1 to active team (R), reset (V) and (W), and set current select streak to 1 (C)")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 2;
+	}
+
+	actions
+	{
+		Destroy HUD Text(Player Variable(Global Variable(Y), T));
+		Destroy HUD Text(Player Variable(Global Variable(Z), T));
+		Set Global Variable(V, 0);
+		Set Global Variable(W, 0);
+		Set Global Variable(C, 1);
+		Set Global Variable(R, Team 1);
+		Set Global Variable(U, Global Variable(P));
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Team 1, String("Picking", Null, Null, Null), Null),
+			String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining", Null, Null,
+			Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Create HUD Text(Global Variable(Y), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Pick", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Y))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
+	}
+}
+
+rule("Team Draft: Remove hero from global hero pool (H) and add to team hero pool (I/J)")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 2;
+		Team Of(Event Player) == Global Variable(R);
+		Player Variable(Event Player, C) == True;
+		Is Button Held(Event Player, Crouch) == True;
+		Is Button Held(Event Player, Interact) == True;
+	}
+
+	actions
+	{
+		Set Global Variable(U, Global Variable(P));
+		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
+		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Skip If(Compare(Global Variable(R), ==, Team 2), 2);
+		Modify Global Variable(I, Append To Array, Hero Of(Event Player));
+		Skip(1);
+		Modify Global Variable(J, Append To Array, Hero Of(Event Player));
+		Set Player Allowed Heroes(Global Variable(Y), Global Variable(H));
+		Set Player Allowed Heroes(Global Variable(Z), Global Variable(H));
+		Modify Global Variable(C, Add, 1);
+	}
+}
+
+rule("If active team reaches end of streak, switch to other team")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global Variable(D) == True;
+		Global Variable(S) == 2;
+		Global Variable(C) == 2;
+	}
+
+	actions
+	{
+		Destroy HUD Text(Global Variable(G));
+		Set Global Variable(R, Opposite Team Of(Global Variable(R)));
+		Set Global Variable(C, 0);
+		Skip If(Compare(Global Variable(R), ==, Team 2), 6);
+		Destroy HUD Text(Player Variable(Global Variable(Z), T));
+		Create HUD Text(Global Variable(Y), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Pick", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Y))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Team 1, String("Picking", Null, Null, Null), Null),
+			String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining", Null, Null,
+			Null), Null), Null), Null, Null, Top, 0, Team 2, White, White, Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Skip(5);
+		Destroy HUD Text(Player Variable(Global Variable(Y), T));
+		Create HUD Text(Global Variable(Z), String("{0}: {1}", String("{0} + {1}", String("Crouch", Null, Null, Null), String("Interact",
+			Null, Null, Null), Null), String("{0} {1}", String("Pick", Null, Null, Null), Hero Icon String(Hero Of(Global Variable(Z))),
+			Null), Null), Null, Null, Top, 3, Yellow, White, White, Visible To and String, Default Visibility);
+		Set Player Variable(Global Variable(Y), T, Last Text ID);
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", Team 2, String("Picking", Null, Null, Null), Null),
+			String("{0} {1}", String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), String("Remaining", Null, Null,
+			Null), Null), Null), Null, Null, Top, 0, Team 1, White, White, Visible To and String, Visible Always);
 		Set Global Variable(G, Last Text ID);
 	}
 }

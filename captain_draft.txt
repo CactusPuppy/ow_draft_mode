@@ -7,13 +7,13 @@ rule("N = Number of heroes to draft per team ||| O = Number of heroes to ban per
 
 	actions
 	{
-		Set Global Variable(N, 2);
-		Set Global Variable(O, 1);
+		Set Global Variable(N, 12);
+		Set Global Variable(O, 2);
 		Set Global Variable(P, 25);
 	}
 }
 
-rule("DEBUG: On Voice Line Down, advance phase")
+disabled rule("DEBUG: On Voice Line Down, advance phase")
 {
 	event
 	{
@@ -34,7 +34,7 @@ rule("DEBUG: On Voice Line Down, advance phase")
 	}
 }
 
-rule("DEBUG: On Voice Line Up, set U to 0")
+disabled rule("DEBUG: On Voice Line Up, set U to 0")
 {
 	event
 	{
@@ -910,7 +910,7 @@ rule("Once both teams have drafted (N) heroes, start pseudo-assemble heroes phas
 		Destroy HUD Text(Global Variable(B));
 		Destroy HUD Text(Value In Array(Global Variable(F), 0));
 		Destroy HUD Text(Value In Array(Global Variable(F), 1));
-		Set Global Variable(U, 40);
+		Set Global Variable(U, 25);
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Destroy HUD Text(Global Variable(G));
 		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("{0} {1}", String("Building", Null, Null, Null), String("Teams",

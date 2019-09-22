@@ -917,6 +917,8 @@ rule("Once both teams have drafted (N) heroes, start pseudo-assemble heroes phas
 			Null, Null, Null), Null), String("{0} sec", Round To Integer(Global Variable(U), Up), Null, Null), Null), Null, Null, Top, 0,
 			White, White, White, Visible To and String, Default Visibility);
 		Set Global Variable(G, Last Text ID);
+		Destroy HUD Text(Player Variable(Global Variable(Y), T));
+		Destroy HUD Text(Player Variable(Global Variable(Z), T));
 	}
 }
 
@@ -956,5 +958,40 @@ disabled rule("Rule 34: Lenny Face")
 	event
 	{
 		Ongoing - Global;
+	}
+}
+
+disabled rule("If a captain leaves the game, reset back to Phase 0")
+{
+	event
+	{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Player Variable(Event Player, C) == True;
+		And(Compare(Global Variable(S), >=, 0), Compare(Global Variable(S), <=, 2)) == True;
+	}
+
+	actions
+	{
+		Destroy HUD Text(Global Variable(A));
+		Destroy HUD Text(Global Variable(B));
+		Stop Chasing Global Variable(U);
+		Set Global Variable(S, 0);
+		Set Global Variable(H, All Heroes);
+		Destroy HUD Text(Global Variable(G));
+		Create HUD Text(All Players(All Teams), String("{0}: {1}", String("Current Phase", Null, Null, Null), String("{0} {1}", String(
+			"Selecting", Null, Null, Null), String("Leaders", Null, Null, Null), Null), Null), Null, Null, Top, 0, White, White, White,
+			Visible To and String, Visible Always);
+		Set Global Variable(G, Last Text ID);
+		Big Message(All Players(All Teams), String("{0}, {1}", String("{0} {1}", Event Player, String("Left", Null, Null, Null), Null),
+			String("{0} {1}", String("Recovering", Null, Null, Null), String("...", Null, Null, Null), Null), Null));
+		Set Global Variable(Y, Null);
+		Set Global Variable(Z, Null);
+		Set Player Variable(All Players(All Teams), C, 0);
 	}
 }

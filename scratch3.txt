@@ -1,0 +1,63 @@
+actions
+{
+	Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 1)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 0), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 0), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 0), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 2)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 1), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 1), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 1), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3.1, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 3)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 2), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 2), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 2), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3.2, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 4)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 3), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 3), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 3), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3.3, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 5)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 4), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 4), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 4), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3.4, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(I)), >=, 5)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 1), 5), Count Of(Global Variable(I))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 5), Count Of(Global Variable(I))))),
+		Value In Array(Global Variable(I), Modulo(Add(Value In Array(Global Variable(E), 1), 5), Count Of(Global Variable(I)))), Null),
+		Null), Null, Null, Left, 3.5, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 1)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 0), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 0), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 0), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 2)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 1), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 1), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 1), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3.1, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 3)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 2), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 2), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 2), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3.2, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 4)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 3), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 3), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 3), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3.3, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 5)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 4), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 4), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 4), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3.4, White, White, White, Visible To and String, Default Visibility);
+    Create HUD Text(Filtered Array(All Players(All Teams), Compare(Count Of(Global Variable(J)), >=, 5)), String("{0} - {1}", Add(
+		Modulo(Add(Value In Array(Global Variable(E), 3), 5), Count Of(Global Variable(J))), 1), String("{0} {1}", Hero Icon String(
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 5), Count Of(Global Variable(J))))),
+		Value In Array(Global Variable(J), Modulo(Add(Value In Array(Global Variable(E), 3), 5), Count Of(Global Variable(J)))), Null),
+		Null), Null, Null, Right, 3.5, White, White, White, Visible To and String, Default Visibility);
+}

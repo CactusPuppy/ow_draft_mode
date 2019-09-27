@@ -591,11 +591,13 @@ rule("Team 1 Ban Selection")
 
 	actions
 	{
-		Modify Global Variable(K, Append To Array, Hero Of(Event Player));
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Banned", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(K))), Null), Null));
-		Play Effect(All Players(All Teams), Explosion Sound, White, Event Player, 200);
-		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Set Global Variable(X, Hero Of(Event Player));
+		Modify Global Variable(K, Append To Array, Global Variable(X));
+		Modify Global Variable(H, Remove From Array By Value, Global Variable(X));
+		Start Forcing Player To Be Hero(Filtered Array(All Players(All Teams), And(Compare(Player Variable(Current Array Element, C), ==,
+			True), Compare(Hero Of(Current Array Element), ==, Global Variable(X)))), Random Value In Array(Global Variable(H)));
+		Stop Forcing Player To Be Hero(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==,
+			True)));
 		Set Player Allowed Heroes(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==, True)),
 			Global Variable(H));
 		Destroy HUD Text(Global Variable(G));
@@ -612,6 +614,10 @@ rule("Team 1 Ban Selection")
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Modify Global Variable(V, Add, 1);
 		Set Global Variable(R, Team 2);
+		Wait(0.016, Ignore Condition);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Banned", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(K))), Null), Null));
+		Play Effect(All Players(All Teams), Explosion Sound, White, Event Player, 200);
 	}
 }
 
@@ -636,11 +642,13 @@ rule("Team 2 Ban Selection")
 
 	actions
 	{
-		Modify Global Variable(L, Append To Array, Hero Of(Event Player));
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Banned", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(L))), Null), Null));
-		Play Effect(All Players(All Teams), Explosion Sound, White, Event Player, 200);
-		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Set Global Variable(X, Hero Of(Event Player));
+		Modify Global Variable(L, Append To Array, Global Variable(X));
+		Modify Global Variable(H, Remove From Array By Value, Global Variable(X));
+		Start Forcing Player To Be Hero(Filtered Array(All Players(All Teams), And(Compare(Player Variable(Current Array Element, C), ==,
+			True), Compare(Hero Of(Current Array Element), ==, Global Variable(X)))), Random Value In Array(Global Variable(H)));
+		Stop Forcing Player To Be Hero(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==,
+			True)));
 		Set Player Allowed Heroes(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==, True)),
 			Global Variable(H));
 		Set Global Variable(R, Team 1);
@@ -657,6 +665,10 @@ rule("Team 2 Ban Selection")
 		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Modify Global Variable(W, Add, 1);
+		Wait(0.016, Ignore Condition);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Banned", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(L))), Null), Null));
+		Play Effect(All Players(All Teams), Explosion Sound, White, Event Player, 200);
 	}
 }
 
@@ -680,7 +692,7 @@ rule("If time (U) runs out, hand ban selection to other team")
 		Set Global Variable(R, Opposite Team Of(Global Variable(R)));
 		Big Message(All Players(All Teams), String("{0}: {1}", Opposite Team Of(Global Variable(R)), String("{0} {1}", String("No", Null,
 			Null, Null), String("Ban", Null, Null, Null), Null), Null));
-		Play Effect(All Players(All Teams), Ring Explosion Sound, White, Global Variable(Y), 200);
+		Play Effect(All Players(All Teams), Ring Explosion Sound, White, First Of(All Players(All Teams)), 200);
 		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Destroy HUD Text(Global Variable(G));
@@ -796,21 +808,31 @@ rule("Team Draft: Remove hero from global hero pool (H) and add to team hero poo
 
 	actions
 	{
+		Set Global Variable(X, Hero Of(Event Player));
 		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
-		Modify Global Variable(H, Remove From Array By Value, Hero Of(Event Player));
+		Modify Global Variable(H, Remove From Array By Value, Global Variable(X));
+		Start Forcing Player To Be Hero(Filtered Array(All Players(All Teams), And(Compare(Player Variable(Current Array Element, C), ==,
+			True), Compare(Hero Of(Current Array Element), ==, Global Variable(X)))), Random Value In Array(Global Variable(H)));
+		Stop Forcing Player To Be Hero(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==,
+			True)));
 		Play Effect(All Players(All Teams), Buff Explosion Sound, White, Event Player, 200);
 		Skip If(Compare(Global Variable(R), ==, Team 2), 3);
-		Modify Global Variable(I, Append To Array, Hero Of(Event Player));
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Picked", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(I))), Null), Null));
+		Set Global Variable(M, 1);
+		Modify Global Variable(I, Append To Array, Global Variable(X));
 		Skip(2);
-		Modify Global Variable(J, Append To Array, Hero Of(Event Player));
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Picked", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(J))), Null), Null));
+		Set Global Variable(M, 2);
+		Modify Global Variable(J, Append To Array, Global Variable(X));
 		Set Player Allowed Heroes(Global Variable(Y), Global Variable(H));
 		Set Player Allowed Heroes(Global Variable(Z), Global Variable(H));
 		Modify Global Variable(C, Add, 1);
+		Wait(0.016, Ignore Condition);
+		Skip If(Compare(Global Variable(M), !=, 1), 1);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Picked", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(I))), Null), Null));
+		Skip If(Compare(Global Variable(M), !=, 2), 1);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Picked", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(J))), Null), Null));
 	}
 }
 
@@ -835,19 +857,29 @@ rule("If time (U) runs out, choose random hero and advance streak")
 		Set Global Variable(U, Global Variable(P));
 		Chase Global Variable At Rate(U, 0, 1, Destination and Rate);
 		Modify Global Variable(H, Remove From Array By Value, Global Variable(X));
+		Start Forcing Player To Be Hero(Filtered Array(All Players(All Teams), And(Compare(Player Variable(Current Array Element, C), ==,
+			True), Compare(Hero Of(Current Array Element), ==, Global Variable(X)))), Random Value In Array(Global Variable(H)));
+		Stop Forcing Player To Be Hero(Filtered Array(All Players(All Teams), Compare(Player Variable(Current Array Element, C), ==,
+			True)));
 		Skip If(Compare(Global Variable(R), ==, Team 2), 4);
-		Play Effect(All Players(All Teams), Buff Explosion Sound, White, Global Variable(Y), 200);
+		Play Effect(All Players(All Teams), Buff Explosion Sound, White, First Of(All Players(All Teams)), 200);
 		Modify Global Variable(I, Append To Array, Global Variable(X));
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Picked", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(I))), Null), Null));
+		Set Global Variable(M, 1);
 		Skip(3);
 		Modify Global Variable(J, Append To Array, Global Variable(X));
 		Play Effect(All Players(All Teams), Buff Explosion Sound, White, Global Variable(Z), 200);
-		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Picked", Null, Null, Null),
-			Hero Icon String(Last Of(Global Variable(J))), Null), Null));
+		Set Global Variable(M, 2);
 		Set Player Allowed Heroes(Global Variable(Y), Global Variable(H));
 		Set Player Allowed Heroes(Global Variable(Z), Global Variable(H));
 		Modify Global Variable(C, Add, 1);
+		Wait(0.016, Ignore Condition);
+		Skip If(Compare(Global Variable(M), !=, 1), 1);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 1, String("{0} {1}", String("Picked", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(I))), Null), Null));
+		Skip If(Compare(Global Variable(M), !=, 2), 1);
+		Big Message(All Players(All Teams), String("{0}: {1}", Team 2, String("{0} {1}", String("Picked", Null, Null, Null),
+			Hero Icon String(Last Of(Global Variable(J))), Null), Null));
+		Play Effect(All Players(All Teams), Buff Explosion Sound, White, First Of(All Players(All Teams)), 200);
 	}
 }
 
